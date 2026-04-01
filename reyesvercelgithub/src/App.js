@@ -17,21 +17,34 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [currentCategory, setCurrentCategory] = useState("all");
 
-  // LOAD TASKS
+  const [studentName, setStudentName] = useState("");
+  const [studentCourse, setStudentCourse] = useState("");
+  const [studentYear, setStudentYear] = useState("");
+  const [students, setStudents] = useState([]);
+
   const loadTasks = async () => {
     const snapshot = await getDocs(collection(db, "tasks"));
-    const data = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+    const data = snapshot.docs.map((docItem) => ({
+      id: docItem.id,
+      ...docItem.data()
     }));
     setTasks(data);
   };
 
+  const loadStudents = async () => {
+    const snapshot = await getDocs(collection(db, "students"));
+    const data = snapshot.docs.map((docItem) => ({
+      id: docItem.id,
+      ...docItem.data()
+    }));
+    setStudents(data);
+  };
+
   useEffect(() => {
     loadTasks();
+    loadStudents();
   }, []);
 
-  // ADD TASK
   const addTask = async (e) => {
     e.preventDefault();
 
@@ -45,17 +58,15 @@ function App() {
       category: category,
       dueDate: dueDate,
       completed: false,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     });
 
     setTaskInput("");
     setDueDate("");
     setCategory("personal");
-
     loadTasks();
   };
 
-  // TOGGLE COMPLETE
   const toggleTask = async (task) => {
     const taskRef = doc(db, "tasks", task.id);
 
@@ -66,26 +77,43 @@ function App() {
     loadTasks();
   };
 
-  // DELETE TASK
   const deleteTask = async (id) => {
     const taskRef = doc(db, "tasks", id);
     await deleteDoc(taskRef);
     loadTasks();
   };
 
-  // FILTER TASKS
+  const saveStudent = async (e) => {
+    e.preventDefault();
+
+    if (!studentName.trim() || !studentCourse.trim() || !studentYear) {
+      alert("Please fill in all student fields");
+      return;
+    }
+
+    await addDoc(collection(db, "students"), {
+      name: studentName,
+      course: studentCourse,
+      yearLevel: studentYear,
+      createdAt: new Date().toISOString()
+    });
+
+    setStudentName("");
+    setStudentCourse("");
+    setStudentYear("");
+    loadStudents();
+  };
+
   const filteredTasks =
     currentCategory === "all"
       ? tasks
-      : tasks.filter(t => t.category === currentCategory);
+      : tasks.filter((task) => task.category === currentCategory);
 
-  const completedCount = tasks.filter(t => t.completed).length;
-  const percent =
-    tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const percent = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
 
   return (
     <div className="container">
-      {/* HEADER */}
       <header className="header">
         <div className="header-content">
           <div className="header-left">
@@ -94,25 +122,22 @@ function App() {
           </div>
 
           <div className="header-right">
-            <button className="btn btn-export">
+            <button className="btn btn-export" type="button">
               📥 Export Tasks
             </button>
           </div>
         </div>
       </header>
 
-      {/* MAIN */}
       <main className="main">
-
-        {/* SIDEBAR */}
         <aside className="sidebar">
-
           <div className="sidebar-section">
             <h3>Categories</h3>
             <div className="category-buttons">
               <button
                 className={`category-btn ${currentCategory === "all" ? "active" : ""}`}
                 onClick={() => setCurrentCategory("all")}
+                type="button"
               >
                 📌 All Tasks
               </button>
@@ -120,6 +145,7 @@ function App() {
               <button
                 className={`category-btn ${currentCategory === "work" ? "active" : ""}`}
                 onClick={() => setCurrentCategory("work")}
+                type="button"
               >
                 💼 Work
               </button>
@@ -127,6 +153,7 @@ function App() {
               <button
                 className={`category-btn ${currentCategory === "school" ? "active" : ""}`}
                 onClick={() => setCurrentCategory("school")}
+                type="button"
               >
                 🎓 School
               </button>
@@ -134,13 +161,13 @@ function App() {
               <button
                 className={`category-btn ${currentCategory === "personal" ? "active" : ""}`}
                 onClick={() => setCurrentCategory("personal")}
+                type="button"
               >
                 🎯 Personal
               </button>
             </div>
           </div>
 
-          {/* PROGRESS */}
           <div className="sidebar-section stats-section">
             <h3>Progress</h3>
             <div className="progress-container">
@@ -156,7 +183,6 @@ function App() {
             </div>
           </div>
 
-          {/* STATS */}
           <div className="sidebar-section">
             <h3>Statistics</h3>
             <div className="stats-grid">
@@ -172,24 +198,19 @@ function App() {
 
               <div className="stat-box">
                 <div className="stat-number">
-                  {tasks.filter(t => !t.completed).length}
+                  {tasks.filter((task) => !task.completed).length}
                 </div>
                 <div className="stat-label">Pending</div>
               </div>
             </div>
           </div>
-
         </aside>
 
-        {/* CONTENT */}
         <section className="content">
-
-          {/* ADD TASK */}
           <div className="add-task-card">
             <h2>Add New Task</h2>
 
             <form onSubmit={addTask} className="task-form">
-
               <div className="form-row">
                 <input
                   type="text"
@@ -218,18 +239,18 @@ function App() {
                   onChange={(e) => setDueDate(e.target.value)}
                 />
 
-                <button className="btn btn-add">Add Task ➕</button>
+                <button className="btn btn-add" type="submit">
+                  Add Task ➕
+                </button>
               </div>
-
             </form>
           </div>
 
-          {/* TASK LIST */}
           <div className="tasks-section">
             <h2>Your Tasks</h2>
 
             <ul className="task-list">
-              {filteredTasks.map(task => (
+              {filteredTasks.map((task) => (
                 <li
                   key={task.id}
                   className={`task-item ${task.completed ? "completed" : ""}`}
@@ -256,9 +277,7 @@ function App() {
 
                     <div className="task-footer">
                       {task.dueDate && (
-                        <span className="task-date">
-                          📅 {task.dueDate}
-                        </span>
+                        <span className="task-date">📅 {task.dueDate}</span>
                       )}
                     </div>
                   </div>
@@ -267,6 +286,7 @@ function App() {
                     <button
                       className="task-btn task-btn-delete"
                       onClick={() => deleteTask(task.id)}
+                      type="button"
                     >
                       🗑️
                     </button>
@@ -274,9 +294,79 @@ function App() {
                 </li>
               ))}
             </ul>
-
           </div>
 
+          <div className="add-task-card">
+            <h2>Student Record Form</h2>
+
+            <form onSubmit={saveStudent} className="task-form">
+              <div className="form-row">
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter student name..."
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                />
+              </div>
+
+              <div className="form-row">
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter course..."
+                  value={studentCourse}
+                  onChange={(e) => setStudentCourse(e.target.value)}
+                />
+
+                <select
+                  className="input-field select-field"
+                  value={studentYear}
+                  onChange={(e) => setStudentYear(e.target.value)}
+                >
+                  <option value="">Select Year Level</option>
+                  <option value="1">1st Year</option>
+                  <option value="2">2nd Year</option>
+                  <option value="3">3rd Year</option>
+                  <option value="4">4th Year</option>
+                </select>
+
+                <button className="btn btn-add" type="submit">
+                  Save Student 💾
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="tasks-section">
+            <h2>Saved Student Records</h2>
+
+            {students.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">🎓</div>
+                <p>No student records yet.</p>
+              </div>
+            ) : (
+              <ul className="task-list">
+                {students.map((student) => (
+                  <li key={student.id} className="task-item">
+                    <div className="task-content">
+                      <div className="task-header">
+                        <span className="task-text">{student.name}</span>
+                        <span className="task-category school">
+                          🎓 Year {student.yearLevel}
+                        </span>
+                      </div>
+
+                      <div className="task-footer">
+                        <span className="task-date">📘 {student.course}</span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </section>
       </main>
     </div>
