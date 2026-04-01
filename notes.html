@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>📋 Task Master</h1>
+                    <p class="tagline">Organize, Track, Achieve</p>
+                </div>
+                <div class="header-right">
+                    <button id="exportBtn" class="btn btn-export" title="Export tasks to JSON">
+                        📥 Export Tasks
+                    </button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Categories</h3>
+                    <div class="category-buttons">
+                        <button class="category-btn active" data-category="all">
+                            📌 All Tasks
+                        </button>
+                        <button class="category-btn" data-category="work">
+                            💼 Work
+                        </button>
+                        <button class="category-btn" data-category="school">
+                            🎓 School
+                        </button>
+                        <button class="category-btn" data-category="personal">
+                            🎯 Personal
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="sidebar-section stats-section">
+                    <h3>Progress</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <p id="progressText" class="progress-text">0 of 0 completed</p>
+                    </div>
+                </div>
+
+
+                <div class="sidebar-section">
+                    <h3>Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-number" id="totalTasks">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="completedTasks">0</div>
+                            <div class="stat-label">Done</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="overdueTasks">0</div>
+                            <div class="stat-label">Overdue</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+
+            <!-- Content Area -->
+            <section class="content">
+                <!-- Add Task Section -->
+                <div class="add-task-card">
+                    <h2>Add New Task</h2>
+                    <form id="taskForm" class="task-form">
+                        <div class="form-row">
+                            <input
+                                type="text"
+                                id="taskInput"
+                                class="input-field"
+                                placeholder="Enter task title..."
+                                required
+                            >
+                        </div>
+                        <div class="form-row">
+                            <select id="categorySelect" class="input-field select-field">
+                                <option value="personal">🎯 Personal</option>
+                                <option value="work">💼 Work</option>
+                                <option value="school">🎓 School</option>
+                            </select>
+                             <input
+                                type="date"
+                                id="dueDateInput"
+                                class="input-field date-field"
+                            >
+                            <button type="submit" class="btn btn-add">Add Task ➕</button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <!-- Tasks List -->
+                <div class="tasks-section">
+                    <h2>Your Tasks</h2>
+                    <ul id="taskList" class="task-list">
+                        <!-- Tasks will be added here dynamically -->
+                    </ul>
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-icon">🎉</div>
+                        <p>No tasks yet! Create one to get started.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
